@@ -1,7 +1,57 @@
-	A firewall is a device that can prevent unauthorized access to a network. If an attacker tries to access a host on the network, using secure shell (SSH) for example, a firewall could block the attempt. Firewalls monitor both traffic coming into the local network as well as traffic attempting to leave the local network. If an employee clicks on a phishing link that tries to connect the employee’s host with a malicious one, a firewall, that has the appropriate rules in place, will prevent the employee’s host from connecting.
-	When a firewall is not blocking traffic appropriately, perhaps allowing SSH connections from unauthorized external hosts for example, mapping the network should be the first troubleshooting step. In the ELK stack project, the network consists of one virtual network, containing two subnetworks, a load balancer for the web servers and four Ubuntu virtual machines. Each subnetwork is monitored by a network security group (NSG) that monitors inbound and outgoing traffic. Looking at the NSG rules in place will help diagnose firewall issues. According to the NSG’s inbound traffic rules, successful SSH connections, from external IP addresses, can only be made to the Jumpbox Provisioner VM. This allows administrators to more securely connect to and update all other VMs on the network. Any other external SSH traffic bound for another VM on the network will be blocked by the NSG. An Ansible Container on the Jumbox Provisioner can make SSH connections to both web servers and the ELK server. 
-	If an unintended VM is receiving external SSH traffic, the NSG inbound traffic rules may be wrong. In the Azure UI, select the Red-Team NSG and then select “Inbound Security Rules” under “Settings.” A rule allowing SSH traffic from any external IP address should be removed to help secure the network. Each VM should also require a password or public key to connect. In the ELK project, the Jumpbox Provisioner VM expects any external SSH connection to have the matching private key. This is verified in the Azure UI by clicking on the VM and selecting “Reset Password” under “Support + Troubleshooting.” It’s possible to reset the password or public key from this menu. Once the external IP address is identified in the NGS’s inbound ruleset and the VM is given a public key to identify the external host, the network will be significantly more secure. After checking these general configurations, try to connect to the host using the appropriate username and IP address on port 22. The command should look like:
-ssh username@ipaddress
-If the VM and NSG settings are configured to stop receiving SSH traffic, the above command should timeout.
-	A firewall cannot completely prevent unauthorized access. Even using inbound rules and asymmetric keys, an attacker could still gain access to my home private network, steal the private key and SSH onto the VM. If I, also, accidentally download malware onto a VM, a hacker could circumvent the NSG and establish a connection. If I set up a database server that doesn’t use input validation, an attacker could use a SQL injection attack to gain unauthorized access to information.
-	Additional monitoring controls can help the firewall secure the network. An Intrusion Detection System (IDS), like Snort, can help by looking at incoming packets for certain marks that identify them as malware. An administrator, however, needs to react to Snort alerts to protect the system. Administrator intervention is significantly lower if an Intrusion Prevention System (IPS) is added to the network. An IPS is a specific kind of IDS that actively drops packets that are possible malware entering the network. If the IPS fails, though, the network won’t be able to receive external packets because external data needs to pass through the IPS to reach the network. Uncomplicated Firewalls (UFW) provide host level protection that can help supplement the network firewall. If it’s suspected that the network was breached, a UFW can determine if the host it’s running on was affected. UFWs can also help contain a breach by monitoring traffic between hosts in the local network for suspicious traffic. Strange packets could be a sign that a local host was infected and now the attacker is trying to move through the network.
+	A firewall is a device that can prevent unauthorized access to a
+network. If an attacker tries to access a host on the network, using
+secure shell (SSH) for example, a firewall could block the attempt.
+Firewalls monitor both traffic coming into the local network as well as
+traffic attempting to leave the local network. If an employee clicks on
+a phishing link that tries to connect the employee's host with a malicious
+one, a firewall, that has the appropriate rules in place, will prevent the
+employeeâ€™s host from connecting.
+	When a firewall is not blocking traffic appropriately, perhaps
+allowing SSH connections from unauthorized external hosts for
+example, mapping the network should be the first troubleshooting
+step. In the ELK stack project, the network consists of one virtual
+network, containing two subnetworks, a load balancer for the web servers
+and four Ubuntu virtual machines. Each subnetwork is monitored by a
+network security group (NSG) that monitors inbound and outgoing traffic.
+Looking at the NSG rules in place will help diagnose firewall issues.
+According to the NSG's inbound traffic rules, successful SSH connections,
+from external IP addresses, can only be made to the Jumpbox Provisioner VM.
+This allows administrators to more securely connect to and update all other
+VMs on the network. Any other external SSH traffic bound for another VM on
+the network will be blocked by the NSG. An Ansible Container on the Jumbox
+Provisioner can make SSH connections to both web servers and the ELK server. 
+	If an unintended VM is receiving external SSH traffic, the NSG
+inbound traffic rules may be wrong. In the Azure UI, select the Red-Team NSG
+and then select "Inbound Security Rules" under "Settings." A rule allowing SSH
+traffic from any external IP address should be removed to help secure the
+network. Each VM should also require a password or public key to connect. In
+the ELK project, the Jumpbox Provisioner VM expects any external SSH connection
+to have the matching private key. This is verified in the Azure UI by clicking on
+the VM and selecting "Reset Password" under "Support + Troubleshooting." It's
+possible to reset the password or public key from this menu. Once the external IP
+address is identified in the NGS's inbound ruleset and the VM is given a public key
+to identify the external host, the network will be significantly more secure. After
+checking these general configurations, try to connect to the host using the
+appropriate username and IP address on port 22. The command should look like:
+	ssh username@ipaddress
+If the VM and NSG settings are configured to stop receiving SSH traffic, the above
+command should timeout.
+	A firewall cannot completely prevent unauthorized access. Even using inbound
+rules and asymmetric keys, an attacker could still gain access to my home private
+network, steal the private key and SSH onto the VM. If I, also, accidentally download
+malware onto a VM, a hacker could circumvent the NSG and establish a connection. If I
+set up a database server that doesn't use input validation, an attacker could use a
+SQL injection attack to gain unauthorized access to information.
+	Additional monitoring controls can help the firewall secure the network. An
+Intrusion Detection System (IDS), like Snort, can help by looking at incoming packets
+for certain marks that identify them as malware. An administrator, however, needs to
+react to Snort alerts to protect the system. Administrator intervention is significantly
+lower if an Intrusion Prevention System (IPS) is added to the network. An IPS is a
+specific kind of IDS that actively drops packets that are possible malware entering the
+network. If the IPS fails, though, the network won't be able to receive external packets
+because external data needs to pass through the IPS to reach the network. Uncomplicated
+Firewalls (UFW) provide host level protection that can help supplement the network
+firewall. If it's suspected that the network was breached, a UFW can determine if the host
+it's running on was affected. UFWs can also help contain a breach by monitoring traffic
+between hosts in the local network for suspicious traffic. Strange packets could be a sign
+that a local host was infected and now the attacker is trying to move through the network.
